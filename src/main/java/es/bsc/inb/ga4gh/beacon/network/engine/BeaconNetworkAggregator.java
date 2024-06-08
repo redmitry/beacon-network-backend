@@ -69,6 +69,9 @@ public class BeaconNetworkAggregator {
     private BeaconNetworkRequestAnalyzer requestAnalyzer;
     
     @Inject
+    private BeaconNetworkTokenExchanger tokenExchanger;
+    
+    @Inject
     private BeaconEndpointsMatcher matcher;
     
     @Inject
@@ -150,7 +153,7 @@ public class BeaconNetworkAggregator {
         
         final Enumeration<String> authorization = request.getHeaders(HttpHeaders.AUTHORIZATION);
         if (authorization != null && authorization.hasMoreElements()) {
-            Collections.list(authorization).stream()
+            tokenExchanger.exchange(endpoint, Collections.list(authorization)).stream()
                     .forEach(h -> builder.header(HttpHeaders.AUTHORIZATION, h));
         }
 

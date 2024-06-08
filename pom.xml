@@ -25,7 +25,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>es.bsc.inb.ga4gh</groupId>
-    <artifactId>beacon-network-v2</artifactId>
+    <artifactId>beacon-network-v2-oidc</artifactId>
     <version>0.0.11</version>
     <packaging>war</packaging>
 
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>es.bsc.inb.ga4gh</groupId>
             <artifactId>beacon-v2-validator-code</artifactId>
-            <version>0.0.7</version>
+            <version>0.0.8-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
