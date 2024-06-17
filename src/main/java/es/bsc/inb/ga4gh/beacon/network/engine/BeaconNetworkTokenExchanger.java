@@ -33,7 +33,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
 import jakarta.json.bind.Jsonb;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -110,7 +112,19 @@ public class BeaconNetworkTokenExchanger {
                     final JsonObject payload = decode(token_parts[1]);
                     if (payload != null) {
                         final String issuer = payload.getString("iss", null);
-                        if (!authorization_servers.contains(issuer)) {
+                        
+                        final List<String> audiences;
+                        final String audience = payload.getString("aud", null);
+                        if (audience != null) {
+                            audiences = List.of(audience);
+                        } else {
+                            final JsonArray aud = payload.getJsonArray("aud");
+                            audiences = aud != null 
+                                    ? aud.getValuesAs(JsonString::getString) 
+                                    : null;
+                        }     
+                        if (!authorization_servers.contains(issuer) || 
+                            (audiences != null && !audiences.contains(client_id))) {
                             // need exchange
                             final List<OidcConfigurationProvider> providers = getWellKnownProviders(authorization_servers);
                             if (providers != null) {
@@ -119,7 +133,7 @@ public class BeaconNetworkTokenExchanger {
                                     try {
                                         final HttpResponse<String> response = http_client.send(builder.build(), 
                                                 BodyHandlers.ofString(StandardCharsets.UTF_8));
-                                        if (response != null) {
+                                        if (response != null && response.statusCode() < 300) {
                                             final String body = response.body();
                                             if (body != null) {
                                                 final AccessTokenResponse atResponse = 
