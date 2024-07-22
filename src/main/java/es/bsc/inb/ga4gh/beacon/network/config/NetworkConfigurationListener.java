@@ -1,6 +1,6 @@
 /**
  * *****************************************************************************
- * Copyright (C) 2023 ELIXIR ES, Spanish National Bioinformatics Institute (INB)
+ * Copyright (C) 2024 ELIXIR ES, Spanish National Bioinformatics Institute (INB)
  * and Barcelona Supercomputing Center (BSC)
  *
  * Modifications to the initial code base are copyright of their respective
@@ -26,7 +26,6 @@
 package es.bsc.inb.ga4gh.beacon.network.config;
 
 import static es.bsc.inb.ga4gh.beacon.network.config.NetworkConfiguration.BEACON_NETWORK_CONFIG_DIR;
-import static es.bsc.inb.ga4gh.beacon.network.config.NetworkConfiguration.BEACON_NETWORK_CONFIG_DIR_PROPERTY_NAME;
 import static es.bsc.inb.ga4gh.beacon.network.config.NetworkConfiguration.BEACON_NETWORK_CONFIG_FILE;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
@@ -72,10 +71,10 @@ public class NetworkConfigurationListener implements ServletContextListener {
 
     @PostConstruct
     public void init() {
-        final String config_dir = System.getenv(BEACON_NETWORK_CONFIG_DIR_PROPERTY_NAME);
-        if (config_dir != null) {
+        if (ConfigurationProperties.BN_CONFIG_DIR_PROPERTY != null) {
             try {
-                watcher = new BeaconConfigFileWatcher(Paths.get(config_dir));
+                watcher = new BeaconConfigFileWatcher(
+                        Paths.get(ConfigurationProperties.BN_CONFIG_DIR_PROPERTY));
             } catch(IOException ex) {
                 Logger.getLogger(NetworkConfigurationListener.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -101,7 +100,8 @@ public class NetworkConfigurationListener implements ServletContextListener {
         final Runnable watchdog = () -> config_changed_event.fireAsync(
                 new NetworkConfigChangedEvent(beacon_network_urls));
 
-        timer.scheduleAtFixedRate(watchdog, 60, 60, TimeUnit.MINUTES);
+        timer.scheduleAtFixedRate(watchdog, ConfigurationProperties.BN_REFRESH_METADATA_TIMEOUT_PROPERTY
+                , ConfigurationProperties.BN_REFRESH_METADATA_TIMEOUT_PROPERTY, TimeUnit.MINUTES);
         
         if (watcher != null) {
             timer.submit(watcher);
