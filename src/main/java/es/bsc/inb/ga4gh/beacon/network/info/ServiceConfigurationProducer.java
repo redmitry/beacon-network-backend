@@ -113,6 +113,9 @@ public class ServiceConfigurationProducer {
         final BeaconConfiguration aggregated = new BeaconConfiguration();
         
         aggregated.setSchema(template.getSchema());
+        aggregated.setMaturityAttributes(template.getMaturityAttributes());
+        aggregated.setSecurityAttributes(template.getSecurityAttributes());
+        aggregated.setMaxPageSize(template.getMaxPageSize());
         
         aggregated.setEntryTypes(new HashMap());
         
