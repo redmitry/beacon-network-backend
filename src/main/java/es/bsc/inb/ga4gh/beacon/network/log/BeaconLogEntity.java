@@ -193,6 +193,12 @@ public class BeaconLogEntity implements Serializable {
     }
     
     public static enum REQUEST_TYPE {
-        METADATA, QUERY;
+        METADATA, QUERY, REQUEST;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("%s %s %s %s %s %s %s", getXid(),
+                    getType(), getMethod(), getUrl(), getCode(), getTime(), message == null ? "" : "'" + message + "'");
     }
 }

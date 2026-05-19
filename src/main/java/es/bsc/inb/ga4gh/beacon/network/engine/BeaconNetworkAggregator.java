@@ -1,6 +1,6 @@
 /**
  * *****************************************************************************
- * Copyright (C) 2025 ELIXIR ES, Spanish National Bioinformatics Institute (INB)
+ * Copyright (C) 2026 ELIXIR ES, Spanish National Bioinformatics Institute (INB)
  * and Barcelona Supercomputing Center (BSC)
  *
  * Modifications to the initial code base are copyright of their respective
@@ -34,6 +34,7 @@ import es.bsc.inb.ga4gh.beacon.framework.model.v200.responses.BeaconErrorRespons
 import es.bsc.inb.ga4gh.beacon.network.config.ConfigurationProperties;
 import es.bsc.inb.ga4gh.beacon.network.log.BeaconLog;
 import es.bsc.inb.ga4gh.beacon.network.log.BeaconLogEntity;
+import es.bsc.inb.ga4gh.beacon.network.log.BeaconLogLevel;
 import es.bsc.inb.ga4gh.beacon.validator.BeaconFrameworkSchema;
 import es.elixir.bsc.json.schema.JsonSchemaReader;
 import es.elixir.bsc.json.schema.model.JsonSchema;
@@ -112,7 +113,10 @@ public class BeaconNetworkAggregator {
         }
     }
 
-    public Response aggregate(HttpServletRequest request) {                
+    public Response aggregate(HttpServletRequest request) {
+        
+        final long start_time = System.currentTimeMillis();
+         
         final byte[] data;
         BeaconRequestMeta meta = null;
         BeaconRequestQuery query = null;
@@ -167,7 +171,20 @@ public class BeaconNetworkAggregator {
         }
         
         final List<AbstractBeaconResponse> beacons_responses = getResultsets(invocations);
-        return responseBuilder.build(meta, query, beacons_responses);
+        final Response response = responseBuilder.build(meta, query, beacons_responses);
+        
+        if (BeaconLogLevel.LEVEL.compareTo(BeaconLogLevel.QUERIES) <= 0) {
+            final BeaconLogEntity log_entry = new BeaconLogEntity(xid, 
+                    BeaconLogEntity.REQUEST_TYPE.QUERY, 
+                    BeaconLogEntity.METHOD.valueOf(request.getMethod()),
+                    request.getRequestURI(), 
+                    200, null, data.length == 0 ? null : new String(data), null);
+
+            log_entry.setTime(System.currentTimeMillis() - start_time);
+            
+            log.log(log_entry);
+        }        
+        return response;
     }
 
     private List<AbstractBeaconResponse> getResultsets(
@@ -250,7 +267,7 @@ public class BeaconNetworkAggregator {
                 new String(publisher.res, StandardCharsets.UTF_8);
         
         final BeaconLogEntity log_entry = new BeaconLogEntity(publisher.xid, 
-                BeaconLogEntity.REQUEST_TYPE.QUERY, method, request.uri().toString(), 
+                BeaconLogEntity.REQUEST_TYPE.REQUEST, method, request.uri().toString(), 
                 code, message, req, res);
         
         // set response processing time
