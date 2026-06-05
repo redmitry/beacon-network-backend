@@ -146,7 +146,19 @@ public class BeaconNetworkTokenExchanger {
     }
 
     private String exchangeToken(String beaconId, String token, JsonObject payload) {
+        
         final String endpoint = network_configuration.getEndpoints().get(beaconId);
+        final String issuer = payload.getString("iss", null);
+        
+        if (idp != null) {
+            // restrict audience to the beacon's endpoint
+            final String tkn = doTokenExchange(idp, ConfigurationProperties.BN_CLIENT_ID,
+                    ConfigurationProperties.BN_CLIENT_SECRET, issuer, endpoint, token);
+            if (tkn != null) {
+                token = tkn;
+            }
+        }
+        
         final OauthProtectedResource resource = network_configuration.getProtectedResources().get(endpoint);
         if (resource != null) {
             final String client_id = resource.getClientId();
@@ -162,28 +174,21 @@ public class BeaconNetworkTokenExchanger {
                             ? aud.getValuesAs(JsonString::getString) 
                             : null;
                 }
-                final String issuer = payload.getString("iss", null);
+                
                 if (!authorization_servers.contains(issuer) || 
                     (audiences != null && !audiences.contains(client_id))) {
                     // need exchange
                     final List<OidcConfigurationProvider> providers = getWellKnownProviders(authorization_servers);
                     if (providers != null) {
                         for (OidcConfigurationProvider provider : providers) {
-                            if (idp != null) {
-                                // restrict audience to the beacon's endpoint
-                                final String tkn = doTokenExchange(idp, ConfigurationProperties.BN_CLIENT_ID,
-                                        ConfigurationProperties.BN_CLIENT_SECRET, issuer, endpoint, token);
-                                if (tkn != null) {
-                                    token = tkn;
-                                }
-                            }
                             return doTokenExchange(provider, client_id, null, issuer, null, token);
                         }
                     }
                 }
             }
         }
-        return null;
+        
+        return token;
     }
 
     private List<OidcConfigurationProvider> getWellKnownProviders(List<String> authorization_servers) {
@@ -271,7 +276,9 @@ public class BeaconNetworkTokenExchanger {
                         ? "urn:ietf:params:oauth:token-type:access_token"
                         : "urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8))
             .append("&requested_token_type").append('=')
-                .append(URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8));
+                .append(URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8))
+            .append("&scope=openid ga4gh_passport_v1");
+            
         
         if (client_secret != null) {
             data.append("&client_secret").append('=').append(client_secret);
