@@ -113,9 +113,11 @@ public class BeaconLog {
             tx.commit();
             return entries;
         } catch (Exception ex) {
-            try {
-                tx.rollback();
-            } catch (Exception e) {}
+            if (tx.isActive()) {
+                try {
+                    tx.rollback();
+                } catch (Exception e) {}
+            }
         }
         
         return getLastRecords(n);
@@ -165,7 +167,11 @@ public class BeaconLog {
             em.persist(record);
             tx.commit();
         } catch (Exception ex) {
-            tx.rollback();
+            if (tx.isActive()) {
+                try {
+                    tx.rollback();
+                } catch (Exception e) {}
+            }
         }
     }
 }
