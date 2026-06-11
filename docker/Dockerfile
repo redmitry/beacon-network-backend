@@ -18,7 +18,7 @@ RUN /bin/sh -c 'echo -e "embed-server --std-out=echo\n \
 /subsystem=undertow/server=default-server/ajp-listener=ajp:add(socket-binding=ajp, scheme=https, redirect-socket=https, enabled=true)\n \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding, value=true)\n \
 /subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource)\n \
-/subsystem=datasources/data-source=BeaconNetwork:add(driver-name=postgresql,jndi-name=java:jboss/datasources/BeaconNetwork,connection-url=\${env.BEACON_NETWORK_DB_CONNECTION_URL},user-name=\${env.BEACON_NETWORK_DB_USERNAME},password=\${env.BEACON_NETWORK_DB_PASSWORD})\n \
+/subsystem=datasources/data-source=BeaconNetwork:add(driver-name=postgresql,jndi-name=java:jboss/datasources/BeaconNetwork,connection-url=\${env.BEACON_NETWORK_DB_CONNECTION_URL},user-name=\${env.BEACON_NETWORK_DB_USERNAME},password=\${env.BEACON_NETWORK_DB_PASSWORD},check-valid-connection-sql=Select 1)\n \
 stop-embedded-server" > $JBOSS_HOME/bin/wildfly-config.cli'
 
 RUN $JBOSS_HOME/bin/jboss-cli.sh --file="$JBOSS_HOME/bin/wildfly-config.cli"
