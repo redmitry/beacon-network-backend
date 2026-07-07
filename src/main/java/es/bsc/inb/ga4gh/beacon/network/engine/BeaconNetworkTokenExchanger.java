@@ -134,10 +134,16 @@ public class BeaconNetworkTokenExchanger {
     private OidcConfigurationProvider limitScopes2Client(OidcConfigurationProvider idp) {
         if (idp != null) {
             final String token = getIdentityProviderClientToken(idp.getTokenEndpoint());
+            // REMOVE!!!!
+            System.out.println("token:\n" + token);
+
             if (token != null) {
                 final JsonObject payload = parse(token);
                 if (payload != null) {
                     final String scope = payload.getString("scope", null);
+                    // REMOVE!!!!
+                    System.out.println("scpes: " + scope);
+
                     if (scope != null) {
                         idp.setSupportedScopes(Arrays.asList(scope.split("\\s+")));
                     }
@@ -317,6 +323,7 @@ public class BeaconNetworkTokenExchanger {
         
         // REMOVE!!!!
         System.out.println(data);
+        
         final Builder builder = HttpRequest.newBuilder(UriBuilder.fromUri(endpoint)
                 .build())
                 .header(HttpHeaders.USER_AGENT, "BN/2.0.0")
