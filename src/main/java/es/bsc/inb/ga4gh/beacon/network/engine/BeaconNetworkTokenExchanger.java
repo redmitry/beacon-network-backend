@@ -287,9 +287,7 @@ public class BeaconNetworkTokenExchanger {
                         ? "urn:ietf:params:oauth:token-type:access_token"
                         : "urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8))
             .append("&requested_token_type").append('=')
-                .append(URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8))
-                
-            .append("&scope=openid ga4gh_passport_v1");
+                .append(URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8));
 
         // keep only scopes supported by the target client
         final String scope = payload.getString("scope", "");
