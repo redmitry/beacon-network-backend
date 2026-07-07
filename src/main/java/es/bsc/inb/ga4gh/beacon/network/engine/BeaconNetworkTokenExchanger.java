@@ -98,6 +98,9 @@ public class BeaconNetworkTokenExchanger {
         if (ConfigurationProperties.BN_OIDC_ENDPOINT == null ||
             ConfigurationProperties.BN_CLIENT_ID == null ||
             ConfigurationProperties.BN_CLIENT_SECRET == null) {
+            Logger.getLogger(BeaconNetworkTokenExchanger.class.getName()).log(
+                    Level.INFO, "no Beacon Network server Identity Provider defined...");
+
             return null;
         }
         
@@ -331,8 +334,20 @@ public class BeaconNetworkTokenExchanger {
                     final String accessToken = atResponse.getAccessToken();
                     if (accessToken != null) {
                         return accessToken;
+                    } else {
+                        Logger.getLogger(BeaconNetworkTokenExchanger.class.getName()).log(
+                                Level.WARNING, "no access token found in the client token response");
+
                     }
-                }                                            
+                } else {
+                        Logger.getLogger(BeaconNetworkTokenExchanger.class.getName()).log(
+                                Level.WARNING, "empty client token response");                    
+                }                                           
+            } else {
+                Logger.getLogger(BeaconNetworkTokenExchanger.class.getName()).log(
+                        Level.WARNING, "error getting client access token from {0}", endpoint);
+                Logger.getLogger(BeaconNetworkTokenExchanger.class.getName()).log(
+                        Level.WARNING, response == null ? "no answer" : response.body());
             }
         } catch (Exception ex) {
             Logger.getLogger(BeaconNetworkTokenExchanger.class.getName()).log(
