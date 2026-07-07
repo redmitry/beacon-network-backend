@@ -315,6 +315,8 @@ public class BeaconNetworkTokenExchanger {
      */
     private String getAccessToken(String endpoint, String data) {
         
+        // REMOVE!!!!
+        System.out.println(data);
         final Builder builder = HttpRequest.newBuilder(UriBuilder.fromUri(endpoint)
                 .build())
                 .header(HttpHeaders.USER_AGENT, "BN/2.0.0")
