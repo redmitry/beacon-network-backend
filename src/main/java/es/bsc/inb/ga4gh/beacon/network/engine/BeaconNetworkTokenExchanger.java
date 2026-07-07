@@ -142,7 +142,7 @@ public class BeaconNetworkTokenExchanger {
                 if (payload != null) {
                     final String scope = payload.getString("scope", null);
                     // REMOVE!!!!
-                    System.out.println("scpes: " + scope);
+                    System.out.println("scppes: " + scope);
 
                     if (scope != null) {
                         idp.setSupportedScopes(Arrays.asList(scope.split("\\s+")));
