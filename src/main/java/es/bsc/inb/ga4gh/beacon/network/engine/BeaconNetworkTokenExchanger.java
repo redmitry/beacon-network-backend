@@ -258,10 +258,10 @@ public class BeaconNetworkTokenExchanger {
         
         data.append("client_id").append('=').append(ConfigurationProperties.BN_CLIENT_ID);
         if (ConfigurationProperties.BN_CLIENT_SECRET != null) {
-            data.append("client_secret").append('=').append(ConfigurationProperties.BN_CLIENT_SECRET);
+            data.append("&client_secret").append('=').append(ConfigurationProperties.BN_CLIENT_SECRET);
         }
         
-        data.append("grant_type=client_credentials");
+        data.append("&grant_type=client_credentials");
         
         return getAccessToken(endpoint, data.toString());
     }
